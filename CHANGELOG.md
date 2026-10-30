@@ -4,6 +4,7 @@
 
 ## Unreleased
 
+- README 开头新增「它评什么」：用一张表列出 checkpoint / dataset / kvcache 的 SLO 判定指标与示例阈值。
 - 新增 [`playbook/storage-performance.md`](playbook/storage-performance.md)：按评估集分别定义 SLO——checkpoint 看写入时长与训练停顿，dataset 看数据停顿比例与 batch 尾延迟，kvcache 看 TTFT 与 TPOT；底层存储指标只用于归因。
 - 新增 [`meta-evaluation/method.md`](meta-evaluation/method.md)：评估 playbook 自身的五个问题、测量方法与判定标准。
 - 澄清静态产物与生成程序：评估集是带版本的静态用例清单，扩展由 playbook 完成；`playbook/self-evolution.md` 改名 `extension.md`。

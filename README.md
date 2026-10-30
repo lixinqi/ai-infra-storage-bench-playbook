@@ -6,12 +6,25 @@
 
 评估用**真实模型代码产生的 IO**，测存储与传输在训练、推理、集群规模下的行为。
 
+## 它评什么
+
+三类评估集覆盖四个评估对象：模型代码（原料）、checkpoint、dataset、kvcache。前三个存储负载各回答一个用户能感知的问题，判定用的是 SLO，不是存储侧的吞吐数字：
+
+| 评估对象 | 回答的问题 | 判定用的 SLO（示例阈值） |
+|---|---|---|
+| checkpoint 写入 | 一次写多久？训练被停多久？ | `checkpoint_duration_s` ≤ 60 s；`training_stall_s` ≤ 5 s；`restore_duration_s` ≤ 120 s |
+| dataset 读取 | 训练等数据等多少？最慢的 batch 多久？ | `data_stall_ratio` ≤ 1%；`time_to_first_batch_s` ≤ 30 s；`batch_latency_p99` ≤ step 预算的 80% |
+| kvcache | 首 token 多快？每个 token 的间隔多稳？ | `ttft_p99` ≤ 2 s；`tpot_p99` ≤ 50 ms；`request_success_rate` ≥ 99.9% |
+| 模型代码收集（原料） | 语料够不够多、够不够全、能不能跑？ | 推理模型 1000+；可跑率 85%；架构族 20+；训练代码配对率 40% |
+
+阈值全部是示例，按配方标定后才生效。存储侧的吞吐、延迟、饱和度只用来解释 SLO 为什么没达成，见 [`playbook/storage-performance.md`](playbook/storage-performance.md)。
+
 ## playbook 产出的三类评估集
 
 | 评估集 | 测什么 | 用例从哪来 | 产出 | 配方目录 |
 |---|---|---|---|---|
 | 模型代码收集 | 语料是否够多、够全、能跑 | HuggingFace 等平台的 model id | 清单（manifest）、覆盖矩阵 | `recipes/model-code-collection/` |
-| checkpoint / dataset | 训练侧 checkpoint 写读、dataset 读取的 IO | 模型代码收集产出的训练代码 + 训练框架 | IO pattern 记录、对齐结果、scaling 结果 | `recipes/checkpoint-dataset/` |
+| checkpoint / dataset | 训练侧 checkpoint 写读、dataset 读取的 IO | 模型代码收集产出的训练代码 + 训练框架 | IO pattern 记录、SLO 表现、对齐结果、scaling 结果 | `recipes/checkpoint-dataset/` |
 | kvcache | 推理侧 KV 分配、读写、复用、驱逐、跨节点搬运 | 模型代码收集产出的推理代码 + vllm / sglang / deepinfer | 同上，prefill 与 decode 分开 | `recipes/kvcache/` |
 
 ### 模型代码收集
@@ -26,7 +39,7 @@
 
 - 评估对象：checkpoint 写入、checkpoint 读取、dataset 读取三条真实路径。
 - 做法：meta device 旁路 forward / backward / optimizer；checkpoint 与 DataLoader 保持真实。每个 rank 的分片、字节数、并发、时序照实记录。
-- 产出：一次运行的 IO pattern 记录（请求大小直方图、读写比、并发度、时序），SLO 表现（`checkpoint_duration_s`、`training_stall_s`、`restore_duration_s`），与真实运行的对齐结果，以及逐级 scaling 结果。
+- 产出：一次运行的 IO pattern 记录（请求大小直方图、读写比、并发度、时序），SLO 表现（checkpoint 的 `checkpoint_duration_s`、`training_stall_s`、`restore_duration_s`；dataset 的 `data_stall_ratio`、`time_to_first_batch_s`、`batch_latency_p99`），与真实运行的对齐结果，以及逐级 scaling 结果。
 - 规模阶梯：S0 单机 8 卡 → S1 双机 → S2 64–128 卡 → S3 千卡 → S4 万卡 → S5 十万卡。
 - 验收：对齐分项在阈值内；每参数字节数误差 ≤ 2%；每一级的不变量保持。
 
@@ -36,7 +49,7 @@
 - 做法：meta device 旁路 prefill / decode 计算；占位 attention 仍按真实块表与偏移读写 KV。调度器、块管理器、缓存与传输层不改。
 - 覆盖：三种推理框架（vllm / sglang / deepinfer）× 多种模型结构、KV 头数与规模。
 - 验收：每 token KV 写入字节误差 ≤ 1%；前缀命中率一致；prefill 与 decode 分别对齐；逐级 scaling 通过。
-- 产出与 checkpoint 评估相同：IO pattern、SLO 表现（`ttft_p99`、`tpot_p99`、请求成功率）、对齐结果、scaling 结果。
+- 产出与 checkpoint 评估相同：IO pattern、SLO 表现（`ttft_p99`、`tpot_p99`、`request_success_rate`，prefill 与 decode 分开）、对齐结果、scaling 结果。
 
 以上数字是配方的验收目标与初始阈值，改动以 `recipes/<name>/recipe.yaml` 与 `metrics.yaml` 为准；README 只是摘要。
 
