@@ -10,7 +10,7 @@
 
 ## 本目录的范围
 
-本目录的指标衡量**评估集自身是否可信**（对齐、覆盖、scaling 一致性）。被测对象（存储）在一个样本上的表现——吞吐、延迟、饱和度、公平性——不在本目录，见 [`playbook/storage-performance.md`](../playbook/storage-performance.md)。
+本目录的指标衡量**评估集自身是否可信**（对齐、覆盖、scaling 一致性）。被测对象（存储）在一个样本上的表现（SLI）与重保判定（SLO）不在本目录，见 [`playbook/storage-performance.md`](../playbook/storage-performance.md)。
 
 ## 指标清单
 

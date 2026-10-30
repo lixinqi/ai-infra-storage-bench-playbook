@@ -13,7 +13,7 @@
     "nodes": 1,
     "gpus_per_node": 1,
     "network": "none",
-    "storage": "local-nvme"
+    "mount": "local-nvme"
   },
   "load": {
     "concurrency": 8,
@@ -31,5 +31,15 @@
     ]
   },
   "seed": 20261030,
-  "level": "S0"
+  "level": "S0",
+  "storage": {
+    "backend": {
+      "name": "gpfs",
+      "version": "5.1"
+    },
+    "adapter": {
+      "name": "mooncake",
+      "version": "0.3"
+    }
+  }
 }

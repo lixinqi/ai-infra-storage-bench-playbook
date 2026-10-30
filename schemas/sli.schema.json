@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/ai-infra-storage-bench-playbook/schemas/sli.schema.json",
+  "title": "SLIRecord",
+  "description": "一次样本运行的 SLI 记录。没有阈值，只记录测量值与存储版本身份。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sample_key",
+    "run_id",
+    "workload",
+    "storage",
+    "window",
+    "metrics"
+  ],
+  "properties": {
+    "sample_key": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16,64}$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "workload": {
+      "type": "string",
+      "enum": [
+        "checkpoint",
+        "dataset",
+        "kvcache"
+      ]
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backend",
+        "adapter"
+      ],
+      "properties": {
+        "backend": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "version": {
+              "type": "string"
+            },
+            "config_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "adapter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "version": {
+              "type": "string"
+            },
+            "config_ref": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "warmup_s",
+        "steady_start",
+        "steady_end",
+        "cv"
+      ],
+      "properties": {
+        "warmup_s": {
+          "type": "number",
+          "minimum": 0
+        },
+        "steady_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "steady_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "cv": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      },
+      "minProperties": 1
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manifest": {
+          "type": "string"
+        },
+        "io_pattern": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "sample_key": "a1b2c3d4e5f60718",
+  "run_id": "invalid-sli-0001",
+  "workload": "kvcache",
+  "window": {
+    "warmup_s": 30,
+    "steady_start": "2026-10-30T10:01:00Z",
+    "steady_end": "2026-10-30T10:05:00Z",
+    "cv": 0.04
+  },
+  "metrics": {
+    "ttft_p99_ms": 1850
+  }
+}

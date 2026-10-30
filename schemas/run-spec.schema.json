@@ -13,7 +13,8 @@
     "topology",
     "load",
     "observe",
-    "seed"
+    "seed",
+    "storage"
   ],
   "properties": {
     "recipe": {
@@ -71,7 +72,7 @@
         "nodes",
         "gpus_per_node",
         "network",
-        "storage"
+        "mount"
       ],
       "properties": {
         "nodes": {
@@ -86,9 +87,10 @@
           "type": "string",
           "minLength": 1
         },
-        "storage": {
+        "mount": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "存储挂载方式，例如 local-nvme、nfs、fuse。"
         }
       }
     },
@@ -166,6 +168,54 @@
       "type": "string",
       "pattern": "^S[0-9]+$",
       "description": "规模档位，对应配方 scaling_plan.levels[].id。"
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backend",
+        "adapter"
+      ],
+      "properties": {
+        "backend": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "version": {
+              "type": "string"
+            },
+            "config_ref": {
+              "type": "string"
+            }
+          }
+        },
+        "adapter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            },
+            "version": {
+              "type": "string"
+            },
+            "config_ref": {
+              "type": "string"
+            }
+          }
+        }
+      }
     }
   }
 }

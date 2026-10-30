@@ -18,7 +18,8 @@
 | 训练框架与版本 | 所用训练框架及版本 | 是 |
 | 并行配置 | DP/TP/PP/EP 的度数 | 是 |
 | 数据集布局 | 与真实训练一致的目录结构与文件切分 | 是 |
-| 存储后端 | 文件系统或对象存储的挂载方式 | 是 |
+| storage.backend | 纯存储系统，如 GPFS / Ceph / JuiceFS | 是 |
+| storage.adapter | 存储传输适配层，如 torchstore / bytecheckpoint | 是 |
 
 ## 输出
 

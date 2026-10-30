@@ -28,6 +28,7 @@
 | `framework` | 框架名 + 版本（仅 kvcache 需要） |
 | `level` | 规模档位，对应 `scaling.md` 的 S0–S5 |
 | `topology` | 节点数、每节点卡数、网络与存储挂载方式 |
+| `storage` | backend（纯存储系统）与 adapter（存储传输适配层）的名称与版本；服务据此注入 `AI_INFRA_STORAGE_BACKEND` 与 `AI_INFRA_STORAGE_ADAPTER` |
 | `load` | 负载配置：并发、序列长度、到达间隔、持续时长 |
 | `observe` | 观测配置：开关、采样率、采集层 |
 | `seed` | 随机种子 |
@@ -135,7 +136,8 @@ s3://example-bucket/
   "model": {"id": "...", "commit": "..."},
   "framework": null,
   "level": "S2",
-  "topology": {"nodes": 8, "gpus_per_node": 8, "network": "...", "storage": "..."},
+  "topology": {"nodes": 8, "gpus_per_node": 8, "network": "...", "mount": "..."},
+  "storage": {"backend": {"name": "gpfs", "version": "5.1"}, "adapter": {"name": "torchstore", "version": "0.2"}},
   "observe": {"enabled": true, "sample_rate": 0.1, "layers": ["app", "sys"]},
   "started_at": "...",
   "finished_at": "...",
@@ -170,6 +172,7 @@ latest_run:
 | 指标版本 | `metrics/*/version` | 度量定义变了 |
 | 服务版本 | `manifest.json` 的 `service_version` | 执行方式变了 |
 | 框架与模型版本 | `manifest.json` | 被评估对象变了 |
+| 存储两层版本 | `manifest.json` 的 `storage` | backend 或 adapter 变了 |
 
 配方的 `compatible_metrics` 按指标名声明兼容的版本列表。服务在运行前校验三者兼容，不兼容直接拒绝，不允许"先跑再说"。
 
@@ -179,7 +182,7 @@ latest_run:
 |---|---|---|
 | 配方改动 | 提交时 | 该配方的最小用例（S0），验证配方可执行 |
 | 框架升级 | 每日 | 三个框架的适配用例 |
-| 存储后端变更 | 变更时 | 受影响后端的对齐用例 |
+| 存储后端或适配层变更 | 变更时 | 受影响 backend / adapter 的对齐用例与 SLI 对比 |
 | 回归 | 每周 | 全部 S0 + 抽样 S1，对比基线 |
 | 探索 | 持续 | 新发现的模型与场景 |
 

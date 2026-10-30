@@ -18,7 +18,8 @@
 | 推理框架 | vllm / sglang / deepinfer 及其版本 | 是 |
 | 负载配置 | 到达间隔、输入长度、输出长度、并发数 | 是 |
 | 缓存层级配置 | 显存配额、分层缓存开关 | 是 |
-| 存储与传输后端 | 本地盘、远端存储、跨节点传输通道 | 是 |
+| storage.backend | 纯存储系统，如 GPFS / Ceph / JuiceFS | 是 |
+| storage.adapter | 存储传输适配层，如 mooncake / torchstore | 是 |
 
 ## 输出
 

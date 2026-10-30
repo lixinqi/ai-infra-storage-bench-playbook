@@ -11,7 +11,7 @@
 覆盖度按矩阵计算。轴由配方声明（`metrics.yaml` 的 `params.axes`），至少三项，且必须包含 `arch_family`。
 
 ```text
-格子 = (arch_family, model_scale, attention, framework, parallel, cluster, io_feature)
+格子 = (arch_family, model_scale, attention, framework, parallel, cluster, io_feature, storage_backend, storage_adapter)
 ```
 
 轴的具体取值由配方决定，不在 schema 里固定。每个格子的状态：

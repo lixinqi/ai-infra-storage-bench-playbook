@@ -8,23 +8,37 @@
 
 ## 它评什么
 
-三类评估集覆盖四个评估对象：模型代码（原料）、checkpoint、dataset、kvcache。前三个存储负载各回答一个用户能感知的问题，判定用的是 SLO，不是存储侧的吞吐数字：
+三类评估集覆盖四个评估对象：模型代码（原料）、checkpoint、dataset、kvcache。指标分两层：
 
-| 评估对象 | 回答的问题 | 判定用的 SLO（示例阈值） |
+- **SLI**：每个样本每次运行都记录，全量留存，用来比较两个存储版本。
+- **SLO**：只对重保子集判定，阈值由使用方在部署评估集时指定，仓库不提供数字。
+
+| 评估对象 | 回答的问题 | 每次运行记录的 SLI |
 |---|---|---|
-| checkpoint 写入 | 一次写多久？训练被停多久？ | `checkpoint_duration_s` ≤ 60 s；`training_stall_s` ≤ 5 s；`restore_duration_s` ≤ 120 s |
-| dataset 读取 | 训练等数据等多少？最慢的 batch 多久？ | `data_stall_ratio` ≤ 1%；`time_to_first_batch_s` ≤ 30 s；`batch_latency_p99` ≤ step 预算的 80% |
-| kvcache | 首 token 多快？每个 token 的间隔多稳？ | `ttft_p99` ≤ 2 s；`tpot_p99` ≤ 50 ms；`request_success_rate` ≥ 99.9% |
-| 模型代码收集（原料） | 语料够不够多、够不够全、能不能跑？ | 推理模型 1000+；可跑率 85%；架构族 20+；训练代码配对率 40% |
+| checkpoint 写入 | 一次写多久？训练被停多久？ | `checkpoint_duration_s`、`training_stall_s`、`restore_duration_s`、`metadata_commit_ms` |
+| dataset 读取 | 训练等数据等多少？最慢的 batch 多久？ | `data_stall_ratio`、`time_to_first_batch_s`、`batch_latency_p99_ms`、`read_amplification` |
+| kvcache | 首 token 多快？每个 token 的间隔多稳？ | `ttft_p99_ms`、`tpot_p99_ms`、`request_success_rate`、`prefix_hit_ratio` |
+| 模型代码收集（原料） | 语料够不够多、够不够全、能不能跑？ | 可跑率、架构族覆盖、训练代码配对率 |
 
-阈值全部是示例，按配方标定后才生效。存储侧的吞吐、延迟、饱和度只用来解释 SLO 为什么没达成，见 [`playbook/storage-performance.md`](playbook/storage-performance.md)。
+完整指标表、SLO 的配置结构与版本比较方法见 [`playbook/storage-performance.md`](playbook/storage-performance.md)。
+
+## 存储版本：backend 与 adapter
+
+存储系统拆成两层，每个样本同时声明，运行时由服务注入环境变量：
+
+| 层 | 是什么 | 例子 | 环境变量 |
+|---|---|---|---|
+| backend | 纯存储系统 | GPFS、HDFS、Alluxio、Ceph、JuiceFS | `AI_INFRA_STORAGE_BACKEND` |
+| adapter | AI Infra 存储传输适配层 | mooncake、torchstore、bytecheckpoint | `AI_INFRA_STORAGE_ADAPTER` |
+
+未设置时样本必须报错退出，不允许默认值。版本与配置记在运行清单里；比较两个存储版本时只允许一层不同，两层都变则按层分别归因。
 
 ## playbook 产出的三类评估集
 
 | 评估集 | 测什么 | 用例从哪来 | 产出 | 配方目录 |
 |---|---|---|---|---|
 | 模型代码收集 | 语料是否够多、够全、能跑 | HuggingFace 等平台的 model id | 清单（manifest）、覆盖矩阵 | `recipes/model-code-collection/` |
-| checkpoint / dataset | 训练侧 checkpoint 写读、dataset 读取的 IO | 模型代码收集产出的训练代码 + 训练框架 | IO pattern 记录、SLO 表现、对齐结果、scaling 结果 | `recipes/checkpoint-dataset/` |
+| checkpoint / dataset | 训练侧 checkpoint 写读、dataset 读取的 IO | 模型代码收集产出的训练代码 + 训练框架 | IO pattern 记录、SLI 记录、对齐结果、scaling 结果 | `recipes/checkpoint-dataset/` |
 | kvcache | 推理侧 KV 分配、读写、复用、驱逐、跨节点搬运 | 模型代码收集产出的推理代码 + vllm / sglang / deepinfer | 同上，prefill 与 decode 分开 | `recipes/kvcache/` |
 
 ### 模型代码收集
@@ -39,7 +53,7 @@
 
 - 评估对象：checkpoint 写入、checkpoint 读取、dataset 读取三条真实路径。
 - 做法：meta device 旁路 forward / backward / optimizer；checkpoint 与 DataLoader 保持真实。每个 rank 的分片、字节数、并发、时序照实记录。
-- 产出：一次运行的 IO pattern 记录（请求大小直方图、读写比、并发度、时序），SLO 表现（checkpoint 的 `checkpoint_duration_s`、`training_stall_s`、`restore_duration_s`；dataset 的 `data_stall_ratio`、`time_to_first_batch_s`、`batch_latency_p99`），与真实运行的对齐结果，以及逐级 scaling 结果。
+- 产出：一次运行的 IO pattern 记录（请求大小直方图、读写比、并发度、时序），SLI 记录（checkpoint 的 `checkpoint_duration_s`、`training_stall_s`、`restore_duration_s`；dataset 的 `data_stall_ratio`、`time_to_first_batch_s`、`batch_latency_p99_ms`），与真实运行的对齐结果，以及逐级 scaling 结果。
 - 规模阶梯：S0 单机 8 卡 → S1 双机 → S2 64–128 卡 → S3 千卡 → S4 万卡 → S5 十万卡。
 - 验收：对齐分项在阈值内；每参数字节数误差 ≤ 2%；每一级的不变量保持。
 
@@ -49,9 +63,9 @@
 - 做法：meta device 旁路 prefill / decode 计算；占位 attention 仍按真实块表与偏移读写 KV。调度器、块管理器、缓存与传输层不改。
 - 覆盖：三种推理框架（vllm / sglang / deepinfer）× 多种模型结构、KV 头数与规模。
 - 验收：每 token KV 写入字节误差 ≤ 1%；前缀命中率一致；prefill 与 decode 分别对齐；逐级 scaling 通过。
-- 产出与 checkpoint 评估相同：IO pattern、SLO 表现（`ttft_p99`、`tpot_p99`、`request_success_rate`，prefill 与 decode 分开）、对齐结果、scaling 结果。
+- 产出与 checkpoint 评估相同：IO pattern、SLI 记录（`ttft_p99_ms`、`tpot_p99_ms`、`request_success_rate`，prefill 与 decode 分开）、对齐结果、scaling 结果。
 
-以上数字是配方的验收目标与初始阈值，改动以 `recipes/<name>/recipe.yaml` 与 `metrics.yaml` 为准；README 只是摘要。
+以上数字是配方的验收目标；SLO 阈值不在本仓库，由部署方在部署评估集时提供。改动以 `recipes/<name>/recipe.yaml` 与 `metrics.yaml` 为准。
 
 ## 一次运行是什么样
 
@@ -63,7 +77,8 @@ recipe_version: 0.1.0
 model: {id: example/tiny-64, commit: "0123456789abcdef0123456789abcdef01234567"}
 framework: {name: vllm, version: 0.0.0-example}
 level: S1
-topology: {nodes: 2, gpus_per_node: 8, network: rdma, storage: local-nvme}
+storage: {backend: {name: gpfs, version: "5.1"}, adapter: {name: mooncake, version: "0.3"}}
+topology: {nodes: 2, gpus_per_node: 8, network: rdma, mount: local-nvme}
 load: {concurrency: 8, input_len: 128, output_len: 64, duration_s: 60}
 observe: {enabled: true, sample_rate: 0.1, layers: [app, sys]}
 seed: 20261030
@@ -73,7 +88,8 @@ seed: 20261030
 
 ```text
 runs/<run-id>/
-  manifest.json     本次运行的全部输入、版本、拓扑
+  manifest.json     本次运行的全部输入、版本、拓扑、存储两层版本
+  sli.json          本次运行的 SLI，全量留存，跨存储版本比较用
   metrics.json      度量值
   alignment.json    与真实运行的对齐结果
   report.html       人读报告
@@ -126,7 +142,7 @@ runs/<run-id>/
 │   └── kvcache/
 ├── metrics/                  指标定义与登记表
 ├── checks/                   校验脚本：指标与仓库规范的可执行实现
-├── schemas/                  recipe / metrics / io-pattern / run-spec 的 JSON Schema
+├── schemas/                  recipe / metrics / io-pattern / run-spec / sli / slo 的 JSON Schema
 ├── scripts/                  维护脚本：新建配方、批量校验
 ├── meta-evaluation/          评估这套 playbook 自身：指标、方法、问卷
 ├── decisions/                关键取舍的决策记录（ADR）
@@ -168,6 +184,10 @@ python3 scripts/run_checks.py        # 上面这项 + selftest + examples/ 样�
 - **保真**：旁路之后，存储与传输代码产生的 IO 请求序列仍能代表真实运行；保真的程度用「保真边界表」逐项登记。
 - **IO pattern**：一次运行产生的 IO 请求的可度量特征集合，见 [`playbook/methodology.md`](playbook/methodology.md) 的「IO pattern 的度量项」。
 - **scaling 不变量**：从较小规模外推到较大规模时，必须保持稳定的那部分 IO 特征。
+- **SLI**：每个样本每次运行都记录的指标，没有阈值，全量留存，用于比较两个存储版本。
+- **SLO**：只对重保子集生效的阈值判定；阈值由使用方在部署时给出，仓库不提供数字。
+- **重保子集**：评估集里业务上不能退化的那部分样本，由部署方的选择器指定。
+- **backend / adapter**：存储系统的两层。backend 是纯存储系统（GPFS、Ceph 等），adapter 是 AI Infra 存储传输适配层（mooncake、torchstore 等）。
 - **回链**：仓库里指向外部运行产物的引用，包含 URI、sha256、状态三要素。
 
 存储与推理领域的基础词（分片、聚合带宽、元数据操作、尾延迟、读放大、基线、DP/TP/PP/EP、MoE、GQA/MQA/MLA）见 [`playbook/appendix-glossary.md`](playbook/appendix-glossary.md)。

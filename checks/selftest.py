@@ -121,6 +121,8 @@ def schema_cases() -> list[tuple[str, int, int]]:
             "recipe.schema.json", INVALID / "recipe-missing-field.yaml")),
         ("reject run spec with unknown level", schema_rejects(
             "run-spec.schema.json", INVALID / "run-spec-bad-level.json")),
+        ("reject SLI without storage identity", schema_rejects(
+            "sli.schema.json", INVALID / "sli-missing-storage.json")),
     ]
     return [(name, 1 if rejected else 0, 1) for name, rejected in checks]
 

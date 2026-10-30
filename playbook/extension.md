@@ -48,6 +48,8 @@
 | `parallel` | DP / TP / PP / EP 的代表组合 |
 | `cluster` | S0–S5 |
 | `io_feature` | 小请求密集 / 大块顺序 / 高并发 / 热点访问 / 突发 |
+| `storage_backend` | GPFS / HDFS / Alluxio / Ceph / JuiceFS |
+| `storage_adapter` | mooncake / torchstore / bytecheckpoint |
 
 矩阵的每个格子记录：用例数、最近一次通过时间、最近一次失败。空格子分两种：
 

@@ -1,0 +1,46 @@
+{
+  "sample_key": "a1b2c3d4e5f60718",
+  "run_id": "example-run-0001",
+  "workload": "kvcache",
+  "storage": {
+    "backend": {
+      "name": "gpfs",
+      "version": "5.1",
+      "config_ref": "s3://example-bucket/configs/gpfs-5.1.yaml"
+    },
+    "adapter": {
+      "name": "mooncake",
+      "version": "0.3",
+      "config_ref": "s3://example-bucket/configs/mooncake-0.3.yaml"
+    }
+  },
+  "window": {
+    "warmup_s": 30,
+    "steady_start": "2026-10-30T10:01:00Z",
+    "steady_end": "2026-10-30T10:05:00Z",
+    "cv": 0.04
+  },
+  "metrics": {
+    "ttft_p99_ms": 1850,
+    "tpot_p99_ms": 42,
+    "request_success_rate": 0.9995,
+    "kv_read_bytes_s": 1200000000,
+    "kv_write_bytes_s": 400000000,
+    "prefix_hit_ratio": 0.35,
+    "eviction_rate": 12,
+    "offload_bytes_s": 0,
+    "cross_node_transfer_latency_p99_ms": 18,
+    "block_alloc_latency_p99_us": 240
+  },
+  "attribution": {
+    "read_bytes_s": 1200000000,
+    "write_bytes_s": 400000000,
+    "latency_p99_ms": 19,
+    "queue_depth_p95": 12
+  },
+  "evidence": {
+    "manifest": "s3://example-bucket/runs/example-run-0001/manifest.json",
+    "io_pattern": "s3://example-bucket/runs/example-run-0001/io-pattern.json",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  }
+}

@@ -11,7 +11,8 @@
 | `io-pattern-bypassed.json` | 旁路运行的记录，偏差在 kvcache 阈值内 |
 | `coverage.json` | 覆盖度清单，覆盖度刚好等于阈值 0.6 |
 | `scaling-levels.json` | 逐级不变量值 |
-| `run-spec.json` | 提交给评估服务的运行请求 |
+| `run-spec.json` | 提交给评估服务的运行请求，含 storage 两层 |
+| `sli.json` | 一次运行的 SLI 记录，含存储两层身份 |
 
 ## 负向样例
 
@@ -24,6 +25,7 @@
 | `coverage-missing-axis.json` | 格子缺 `arch_family` 轴 |
 | `scaling-bad-lengths.json` | 不变量值个数与级别数不一致 |
 | `run-spec-bad-level.json` | 规模档位不匹配 `^S[0-9]+$` |
+| `sli-missing-storage.json` | SLI 记录缺存储两层身份 |
 | `recipe-missing-field.yaml` | 配方缺 `metrics_ref` |
 
 ## 跑一遍

@@ -192,15 +192,22 @@ def check_recipe(name: str, registry: dict[str, dict], errors: list[str]) -> Non
     validate_dependencies(name, recipe, errors)
 
 
+EXAMPLE_FILES = (
+    ("run-spec.json", "run-spec.schema.json"),
+    ("sli.json", "sli.schema.json"),
+)
+
+
 def check_examples(errors: list[str]) -> None:
-    example = ROOT / "examples" / "run-spec.json"
-    if not example.is_file():
-        errors.append("examples/run-spec.json is missing")
-        return
-    with example.open(encoding="utf-8") as handle:
-        instance = json.load(handle)
-    for message in schema_errors(instance, load_schema("run-spec.schema.json")):
-        errors.append(f"examples/run-spec.json {message}")
+    for filename, schema_name in EXAMPLE_FILES:
+        example = ROOT / "examples" / filename
+        if not example.is_file():
+            errors.append(f"examples/{filename} is missing")
+            continue
+        with example.open(encoding="utf-8") as handle:
+            instance = json.load(handle)
+        for message in schema_errors(instance, load_schema(schema_name)):
+            errors.append(f"examples/{filename} {message}")
 
 
 def recipe_directories() -> list[str]:
