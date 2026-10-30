@@ -1,0 +1,32 @@
+name: broken-recipe
+version: 0.1.0
+status: draft
+owner: nobody
+type: kvcache
+bypass:
+  what: [prefill]
+  method: mixed
+  kept: [kv writes]
+fidelity_boundary:
+  - path: attention
+    bypassed: "yes"
+    method: meta-device
+    fidelity: "na"
+    kept: kv reads
+    known_bias: none
+io_pattern_invariants:
+  - {name: a, definition: b, tolerance: c}
+  - {name: a, definition: b, tolerance: c}
+  - {name: a, definition: b, tolerance: c}
+scaling_plan:
+  fixed_dimensions: [framework]
+  varied_dimension: model size
+  levels:
+    - {id: S0, scale: one card, purpose: align}
+    - {id: S1, scale: two cards, purpose: scale}
+compatible_metrics:
+  io-pattern-alignment: ["1.0.0"]
+acceptance:
+  checklist: ./acceptance-checklist.md
+  gates: [G2]
+latest_run: null

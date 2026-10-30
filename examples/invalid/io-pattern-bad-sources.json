@@ -1,0 +1,8 @@
+{
+  "run_id": "invalid-0001",
+  "recipe": "kvcache",
+  "window": {"start": "2026-10-30T10:00:00Z", "end": "2026-10-30T10:05:00Z"},
+  "sources": ["app"],
+  "totals": {"read_bytes": 1, "write_bytes": 1, "read_ops": 1, "write_ops": 1},
+  "request_size_histogram": {"bucket_edges": [4096], "counts": [1]}
+}

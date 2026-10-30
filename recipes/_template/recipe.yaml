@@ -1,0 +1,57 @@
+# 配方元信息模板。尖括号内容必须替换；latest_run 由评估服务写入，不要手填。
+name: <recipe-name>
+version: 0.0.0
+status: draft
+owner: <team-or-person>
+type: <evaluation-family>
+
+depends_on:
+  - recipes/model-code-collection
+
+bypass:
+  what:
+    - <被旁路的计算或模块>
+  method: <meta-device | module-mock | cpu-offload | real-small-scale | mixed>
+  kept:
+    - <保留的存储或传输路径>
+
+fidelity_boundary:
+  - path: <函数级路径，例如 torch.distributed.checkpoint.save>
+    bypassed: <yes | no | partial>
+    method: <旁路手段；未旁路写 none>
+    fidelity: <L0 | L1 | L2 | L3 | na>
+    kept: <保留了什么>
+    known_bias: <已知偏差；没有写 none>
+
+io_pattern_invariants:
+  - name: <不变量名称>
+    definition: <可计算的定义>
+    tolerance: <容差，例如 L1 距离 <= 0.10>
+  - name: <不变量名称>
+    definition: <可计算的定义>
+    tolerance: <容差>
+  - name: <不变量名称>
+    definition: <可计算的定义>
+    tolerance: <容差>
+
+scaling_plan:
+  fixed_dimensions:
+    - <固定维度>
+  varied_dimension: <本次放大的维度>
+  levels:
+    - id: S0
+      scale: <该档位的硬件与规模描述>
+      purpose: <该级要验证什么>
+    - id: S1
+      scale: <更大一级>
+      purpose: <该级要验证什么>
+
+metrics_ref: ./metrics.yaml
+compatible_metrics:
+  io-pattern-alignment: ["1.0.0"]
+
+acceptance:
+  checklist: ./acceptance-checklist.md
+  gates: [G0, G1, G2, G3, G4]
+
+latest_run: null

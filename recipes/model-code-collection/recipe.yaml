@@ -1,0 +1,81 @@
+# 模型代码收集。语料是本配方唯一的产物，因此这里的不变量描述的是语料的稳定性：
+# 下游 checkpoint/dataset 与 kvcache 的 IO 结论都建立在语料不变的前提上。
+name: model-code-collection
+version: 0.1.0
+status: draft
+owner: storage-eval
+
+type: model-code-collection
+
+bypass:
+  what:
+    - 无：本配方不旁路计算，只替换分布式进程组
+  method: mixed
+  kept:
+    - 建模代码与配置的真实解析
+    - 各 rank 的真实启动与执行
+    - 分时占用 GPU 的执行顺序
+
+fidelity_boundary:
+  - path: 建模代码与配置文件读取
+    bypassed: "no"
+    method: none
+    fidelity: "na"
+    kept: 真实源码解析与配置读取
+    known_bias: none
+  - path: 权重加载
+    bypassed: "yes"
+    method: 不加载权重，只取代码与配置
+    fidelity: "na"
+    kept: 代码路径与配置解析
+    known_bias: 不覆盖权重读取 IO，权重读取不属于本评估集
+  - path: torch.distributed.init_process_group / new_group / get_world_size
+    bypassed: partial
+    method: mock process group
+    fidelity: L1
+    kept: rank 分支、调用次数、参与通信的数据量
+    known_bias: rank 间真实同步丢失，耗时不代表真实并发
+  - path: 前向计算
+    bypassed: "no"
+    method: real-small-scale
+    fidelity: L2
+    kept: 真实前向调用与真实张量计算
+    known_bias: 输入维度取最小值，不覆盖长序列下的显存与算子路径
+
+io_pattern_invariants:
+  - name: 语料字节稳定性
+    definition: 同一 model id 与 commit 下，代码与配置文件的集合、总字节数与 sha256 完全一致
+    tolerance: 完全一致
+  - name: 运行配置确定性
+    definition: 同一模型的 rank 数、输入维度、rank 启动顺序在重跑时保持不变
+    tolerance: 完全一致
+  - name: 去重后结构族分布稳定性
+    definition: 去重后各架构族的样本占比，在重跑时的一致性
+    tolerance: 各架构族占比的绝对差 <= 0.05
+
+scaling_plan:
+  fixed_dimensions:
+    - 依赖镜像
+    - rank 数（默认 2）
+    - 输入维度
+  varied_dimension: 模型数量
+  levels:
+    - id: S0
+      scale: 单卡，50 个模型
+      purpose: 验证下载、去重、可跑性判定流程正确
+    - id: S1
+      scale: 单卡，500 个模型
+      purpose: 验证分时调度与失败分类的稳定性
+    - id: S2
+      scale: 单卡，1000 个以上模型
+      purpose: 验证语料规模达到目标后的覆盖度与可复现性
+
+metrics_ref: ./metrics.yaml
+compatible_metrics:
+  coverage: ["1.0.0"]
+
+acceptance:
+  checklist: ./acceptance-checklist.md
+  gates: [G0, G1, G4]
+
+latest_run: null

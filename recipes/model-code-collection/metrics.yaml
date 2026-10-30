@@ -1,0 +1,16 @@
+# 模型代码收集配方只判定覆盖度。本配方不产生 IO pattern，因此不声明 io-pattern-alignment。
+recipe: model-code-collection
+
+metrics:
+  - name: coverage
+    version: "1.0.0"
+    gate: G4
+    params:
+      axes: [arch_family, model_scale, attention, io_feature]
+      targets:
+        arch_family_min_samples: 3
+        scale_bucket_min_samples: 10
+      exclude_stale: true
+    tolerance:
+      coverage_ratio_min: 0.6
+    notes: 覆盖度目标值写在 params.targets，判定阈值只有 coverage_ratio_min。

@@ -1,0 +1,36 @@
+# kvcache 配方选用的指标与阈值。阈值以本文件为准，check 脚本读取这里。
+recipe: kvcache
+
+metrics:
+  - name: io-pattern-alignment
+    version: "1.0.0"
+    gate: G2
+    items:
+      - request_size_distribution
+      - read_write_ratio_bytes
+      - concurrency_p50
+      - concurrency_p95
+      - timing_peak
+      - per_token_kv_bytes
+    params:
+      bucket_base: 4096
+      window_warmup_rounds: 3
+      sources: [app, sys]
+      split_by_phase: [prefill, decode]
+    tolerance:
+      request_size_distribution: 0.12
+      read_write_ratio_bytes: "8%"
+      concurrency_p50: "15%"
+      concurrency_p95: "25%"
+      timing_peak: "15%"
+      per_token_kv_bytes: "1%"
+    notes: decode 阶段请求小、突发强，容差比 checkpoint 宽；每 token KV 字节是硬核对项。
+
+  - name: scaling-consistency
+    version: "1.0.0"
+    gate: G3
+    params:
+      levels: [S0, S1, S2, S3, S4, S5]
+    tolerance:
+      per_level: "12%"
+      first_last: "18%"

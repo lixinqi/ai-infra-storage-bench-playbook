@@ -1,0 +1,44 @@
+# 机器可读的指标登记表。
+# 新增指标时：先在 metrics/<name>.md 写口径，再在这里登记，最后在 recipes/*/metrics.yaml 引用。
+version: "1.0.0"
+metrics:
+  - name: io-pattern-alignment
+    version: "1.0.0"
+    supported: ["1.0.0"]
+    doc: metrics/io-pattern-alignment.md
+    summary: 旁路运行与真实运行在 IO pattern 度量项上的接近程度
+    unit: per-item
+    direction: closer-is-better
+    gates: [G2]
+    items:
+      - request-size-distribution
+      - read-write-ratio
+      - concurrency
+      - timing
+      - hotness
+      - sequentiality
+
+  - name: coverage
+    version: "1.0.0"
+    supported: ["1.0.0"]
+    doc: metrics/coverage.md
+    summary: 评估集在目标维度矩阵上的填充程度
+    unit: ratio
+    direction: higher-is-better
+    gates: [G4]
+    items:
+      - coverage-ratio
+      - gap-ratio
+
+  - name: scaling-consistency
+    version: "1.0.0"
+    supported: ["1.0.0"]
+    doc: metrics/scaling-consistency.md
+    summary: 逐级放大时 scaling 不变量的保持程度
+    unit: per-invariant
+    direction: closer-is-better
+    gates: [G3]
+    items:
+      - adjacent-level-deviation
+      - first-last-deviation
+      - monotonic-drift

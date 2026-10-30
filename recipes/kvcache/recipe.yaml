@@ -1,0 +1,125 @@
+name: kvcache
+version: 0.1.0
+status: draft
+owner: storage-eval
+type: kvcache
+
+depends_on:
+  - recipes/model-code-collection
+
+bypass:
+  what:
+    - prefill 计算
+    - decode 计算
+    - attention 打分
+    - 采样
+  method: mixed
+  kept:
+    - 块分配与释放
+    - KV 写入与读取
+    - 前缀缓存命中与驱逐
+    - 跨节点 KV 传输
+    - 调度器事件与停止条件
+
+fidelity_boundary:
+  - path: "attention 打分（QK^T 与 softmax）"
+    bypassed: "yes"
+    method: meta-device
+    fidelity: "na"
+    kept: 按真实块表与偏移读取 KV 块
+    known_bias: 计算耗时为 0，decode 的逐 token 节奏由调度器决定，不由计算决定
+  - path: "FFN / norm / 采样"
+    bypassed: "yes"
+    method: module-mock
+    fidelity: "na"
+    kept: 调用顺序与输出结构
+    known_bias: 采样被 mock 后，若停止条件也被简化，输出长度分布会变，KV 写入总量随之失真
+  - path: "块分配器（block manager）"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实分配、释放、碎片与块表
+    known_bias: none
+  - path: "KV 写入与读取"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实写入偏移、块大小、读取放大
+    known_bias: none
+  - path: "前缀缓存（prefix cache / radix cache）"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实命中判定与复用
+    known_bias: 负载变小后命中率与真实服务不同
+  - path: "驱逐与分层缓存 offload"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实驱逐判定与搬运
+    known_bias: 小规模下显存压力不足，驱逐路径可能不被触发
+  - path: "跨节点 KV 传输"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实传输通道与对端选择
+    known_bias: 单机无法复现两个服务协同的时序，单机结论只覆盖量级
+  - path: "推理框架调度器"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实排队、批组成、抢占
+    known_bias: none
+
+io_pattern_invariants:
+  - name: 每 token KV 写入字节
+    definition: KV 写入总字节数 / 生成的 token 数，按层数与 KV 头数归一化
+    tolerance: 相对误差 <= 1%
+  - name: 每请求读写请求大小分布
+    definition: 单个请求内，KV 读写请求按 4 KiB 起对数分桶的归一化直方图
+    tolerance: L1 距离 <= 0.12
+  - name: 前缀命中率
+    definition: 命中复用的块数 / 请求的块数
+    tolerance: 绝对差 <= 0.03
+  - name: 读放大倍数
+    definition: KV 读取字节数 / KV 写入字节数
+    tolerance: 相对误差 <= 10%
+
+scaling_plan:
+  fixed_dimensions:
+    - 推理框架与版本
+    - 负载配置（到达间隔、输入输出长度分布）
+    - 存储与传输后端
+  varied_dimension: 模型规模与集群规模（分阶段，不同时放大）
+  levels:
+    - id: S0
+      scale: 单机单卡，最小模型
+      purpose: 与真实推理对齐，验证旁路成立
+    - id: S1
+      scale: 单机多卡，张量并行
+      purpose: 引入多卡块管理与跨卡传输
+    - id: S2
+      scale: 多机 32–64 卡
+      purpose: 引入跨节点 KV 传输与共享存储
+    - id: S3
+      scale: 千卡
+      purpose: 引入分布式前缀缓存与调度抖动
+    - id: S4
+      scale: 万卡
+      purpose: 实测上限，登记实测结论
+    - id: S5
+      scale: 十万卡
+      purpose: 外推目标，登记外推结论
+
+metrics_ref: ./metrics.yaml
+compatible_metrics:
+  io-pattern-alignment: ["1.0.0"]
+  scaling-consistency: ["1.0.0"]
+
+acceptance:
+  checklist: ./acceptance-checklist.md
+  gates: [G0, G1, G2, G3, G4]
+
+latest_run: null
+
+notes: 三个框架的接口以运行清单里记录的版本为准；升级框架后必须重跑该框架的最小用例。

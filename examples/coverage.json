@@ -1,0 +1,114 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-10-30T10:00:00Z",
+  "cells": [
+    {
+      "axes": {
+        "arch_family": "llama-like",
+        "model_scale": "7B",
+        "attention": "gqa",
+        "framework": "vllm",
+        "parallel": "tp4",
+        "cluster": "S1",
+        "io_feature": "small-dense"
+      },
+      "status": "covered",
+      "cases": [
+        "kvcache/llama-7b-gqa-tp4"
+      ],
+      "last_run": {
+        "run_id": "example-run-0001",
+        "status": "passed",
+        "finished_at": "2026-10-30T10:05:00Z"
+      }
+    },
+    {
+      "axes": {
+        "arch_family": "llama-like",
+        "model_scale": "70B",
+        "attention": "gqa",
+        "framework": "sglang",
+        "parallel": "tp8",
+        "cluster": "S2",
+        "io_feature": "large-block"
+      },
+      "status": "gap",
+      "cases": []
+    },
+    {
+      "axes": {
+        "arch_family": "moe",
+        "model_scale": "100B",
+        "attention": "mla",
+        "framework": "deepinfer",
+        "parallel": "ep8",
+        "cluster": "S3",
+        "io_feature": "hotspot"
+      },
+      "status": "failed",
+      "cases": [
+        "kvcache/moe-mla-ep8"
+      ],
+      "last_run": {
+        "run_id": "example-run-0003",
+        "status": "failed",
+        "finished_at": "2026-10-29T09:00:00Z"
+      }
+    },
+    {
+      "axes": {
+        "arch_family": "ssm",
+        "model_scale": "1B",
+        "attention": "linear",
+        "framework": "vllm",
+        "parallel": "tp2",
+        "cluster": "S0",
+        "io_feature": "burst"
+      },
+      "status": "exempt",
+      "cases": [],
+      "exempt_reason": "当前没有该变体的内部推理部署，暂不覆盖",
+      "review_due": "2027-01-01"
+    },
+    {
+      "axes": {
+        "arch_family": "moe",
+        "model_scale": "8x7B",
+        "attention": "gqa",
+        "framework": "vllm",
+        "parallel": "ep4",
+        "cluster": "S1",
+        "io_feature": "small-dense"
+      },
+      "status": "covered",
+      "cases": [
+        "kvcache/moe-8x7b-gqa-ep4"
+      ],
+      "last_run": {
+        "run_id": "example-run-0004",
+        "status": "passed",
+        "finished_at": "2026-10-30T10:20:00Z"
+      }
+    },
+    {
+      "axes": {
+        "arch_family": "llama-like",
+        "model_scale": "13B",
+        "attention": "mha",
+        "framework": "sglang",
+        "parallel": "tp2",
+        "cluster": "S0",
+        "io_feature": "burst"
+      },
+      "status": "covered",
+      "cases": [
+        "kvcache/llama-13b-mha-tp2"
+      ],
+      "last_run": {
+        "run_id": "example-run-0005",
+        "status": "passed",
+        "finished_at": "2026-10-30T10:25:00Z"
+      }
+    }
+  ]
+}

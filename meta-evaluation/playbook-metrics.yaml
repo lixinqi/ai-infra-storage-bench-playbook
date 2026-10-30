@@ -1,0 +1,51 @@
+# 评估这套手册自身的指标定义。只定义怎么算，不放实测值。
+version: "1.0.0"
+metrics:
+  - name: recipe-execution-success-rate
+    definition: 按配方 README 的步骤，第一次独立执行即通过 G0–G4 的比例
+    unit: ratio
+    direction: higher-is-better
+    source: 执行记录
+    target: ">= 0.8"
+
+  - name: recipe-reuse-rate
+    definition: 新增评估集中，直接复用已有配方而未修改流程的比例
+    unit: ratio
+    direction: higher-is-better
+    source: 配方变更记录
+    target: ">= 0.5"
+
+  - name: conclusion-overturn-rate
+    definition: 已登记的评估结论在后续运行中被推翻的比例
+    unit: ratio
+    direction: lower-is-better
+    source: 回归记录
+    target: "<= 0.1"
+
+  - name: cost-per-run
+    definition: 单次评估运行消耗的卡时与存储读写量
+    unit: gpu-hours
+    direction: lower-is-better
+    source: 评估服务
+    target: 记录趋势，不设目标
+
+  - name: gap-closure-time
+    definition: 缺口登记到补齐的中位时长
+    unit: days
+    direction: lower-is-better
+    source: 覆盖度清单
+    target: "<= 30"
+
+  - name: stale-recipe-ratio
+    definition: 超过一个版本周期未回归的配方占比
+    unit: ratio
+    direction: lower-is-better
+    source: 回归记录
+    target: "<= 0.2"
+
+  - name: checklist-completion-rate
+    definition: 已通过门中，验收清单勾选项完整填写的比例
+    unit: ratio
+    direction: higher-is-better
+    source: 验收清单
+    target: "= 1.0"

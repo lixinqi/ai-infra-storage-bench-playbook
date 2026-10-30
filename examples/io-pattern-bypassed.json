@@ -1,0 +1,54 @@
+{
+  "run_id": "example-run-0002",
+  "recipe": "kvcache",
+  "window": {
+    "start": "2026-10-30T10:10:00Z",
+    "end": "2026-10-30T10:15:00Z"
+  },
+  "sources": [
+    "app",
+    "sys"
+  ],
+  "totals": {
+    "read_bytes": 1010000,
+    "write_bytes": 4020000,
+    "read_ops": 505,
+    "write_ops": 2010
+  },
+  "request_size_histogram": {
+    "bucket_edges": [
+      4096,
+      8192,
+      16384,
+      65536,
+      262144
+    ],
+    "counts": [
+      102,
+      892,
+      1215,
+      298
+    ]
+  },
+  "concurrency": {
+    "p50": 8.4,
+    "p95": 25.5,
+    "max": 42
+  },
+  "sequentiality_ratio": 0.8,
+  "hotness": {
+    "top_k": 16,
+    "top_k_share": 0.33,
+    "gini": 0.42
+  },
+  "cross_node": {
+    "egress_bytes": 1220000,
+    "ingress_bytes": 810000
+  },
+  "observation_overhead_ratio": 0.012,
+  "notes": "样例数据，模拟旁路运行，偏差在容差内。",
+  "tokens_generated": 200000,
+  "timing": {
+    "peak_bytes_per_second": 20400000
+  }
+}

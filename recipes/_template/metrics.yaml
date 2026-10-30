@@ -1,0 +1,21 @@
+# 指标选用模板。只选 metrics/registry.yaml 里已登记的指标。
+# 阈值以本文件为准：check 脚本通过 --metrics 读取这里，不要另抄一份。
+recipe: <recipe-name>
+
+metrics:
+  - name: io-pattern-alignment
+    version: "1.0.0"
+    gate: G2
+    items:
+      - request_size_distribution
+      - read_write_ratio_bytes
+      - concurrency_p50
+    params:
+      bucket_base: 4096
+      window_warmup_rounds: 3
+      sources: [app, sys]
+    tolerance:
+      request_size_distribution: 0.10
+      read_write_ratio_bytes: "5%"
+      concurrency_p50: "10%"
+    notes: <本配方选这些度量项的理由>

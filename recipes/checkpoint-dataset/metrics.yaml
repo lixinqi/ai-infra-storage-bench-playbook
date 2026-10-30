@@ -1,0 +1,33 @@
+# checkpoint/dataset 配方选用的指标与阈值。阈值以本文件为准，check 脚本读取这里。
+recipe: checkpoint-dataset
+
+metrics:
+  - name: io-pattern-alignment
+    version: "1.0.0"
+    gate: G2
+    items:
+      - request_size_distribution
+      - read_write_ratio_bytes
+      - concurrency_p50
+      - concurrency_p95
+      - timing_peak
+    params:
+      bucket_base: 4096
+      window_warmup_rounds: 1
+      sources: [app, sys]
+    tolerance:
+      request_size_distribution: 0.08
+      read_write_ratio_bytes: "5%"
+      concurrency_p50: "10%"
+      concurrency_p95: "20%"
+      timing_peak: "10%"
+    notes: checkpoint 写入的请求大小由分片策略决定，容差比 kvcache 紧。
+
+  - name: scaling-consistency
+    version: "1.0.0"
+    gate: G3
+    params:
+      levels: [S0, S1, S2, S3, S4, S5]
+    tolerance:
+      per_level: "10%"
+      first_last: "15%"

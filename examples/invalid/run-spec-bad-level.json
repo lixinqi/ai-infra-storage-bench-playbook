@@ -1,0 +1,11 @@
+{
+  "recipe": "kvcache",
+  "recipe_version": "0.1.0",
+  "model": {"id": "example/tiny-64", "commit": "0123456789abcdef0123456789abcdef01234567"},
+  "framework": {"name": "vllm", "version": "0.0.0-example"},
+  "level": "T0",
+  "topology": {"nodes": 1, "gpus_per_node": 1, "network": "none", "storage": "local-nvme"},
+  "load": {"concurrency": 8, "duration_s": 60},
+  "observe": {"enabled": true, "sample_rate": 0.1, "layers": ["app", "sys"]},
+  "seed": 1
+}

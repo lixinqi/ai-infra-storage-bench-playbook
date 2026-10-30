@@ -1,0 +1,8 @@
+recipe: kvcache
+metrics:
+  - name: io-pattern-alignment
+    version: "1.0.0"
+    gate: G2
+    tolerance:
+      request_size_distribution: 0.10
+      bucket_layout: 4096

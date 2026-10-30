@@ -1,0 +1,6 @@
+{
+  "levels": ["S0", "S1", "S2"],
+  "invariants": {
+    "per_parameter_bytes": {"values": [16.0, 16.2], "tolerance": 0.1}
+  }
+}

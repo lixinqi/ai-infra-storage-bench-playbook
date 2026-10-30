@@ -1,0 +1,18 @@
+{
+  "levels": ["S0", "S1", "S2", "S3"],
+  "first_last_tolerance": 0.15,
+  "invariants": {
+    "per_parameter_bytes": {
+      "values": [16.0, 16.2, 15.9, 16.1],
+      "tolerance": 0.1
+    },
+    "write_concurrency_p50": {
+      "values": [4, 4.5, 4.2, 4.4],
+      "tolerance": 0.3
+    },
+    "request_size_distribution_l1": {
+      "values": [0.02, 0.021, 0.019, 0.02],
+      "tolerance": 0.15
+    }
+  }
+}

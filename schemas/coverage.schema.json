@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/coverage.schema.json",
+  "title": "CoverageManifest",
+  "description": "评估集覆盖度清单。由评估服务在每次运行后更新，存对象存储；仓库只放 schema 与计算脚本。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "generated_at",
+    "cells"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "cells": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "axes",
+          "status",
+          "cases"
+        ],
+        "properties": {
+          "axes": {
+            "description": "覆盖度矩阵的轴。轴名由配方声明，至少要三个，且必须包含 arch_family。",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "required": [
+              "arch_family"
+            ],
+            "minProperties": 3
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "covered",
+              "failed",
+              "stale",
+              "exempt",
+              "gap"
+            ]
+          },
+          "cases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "last_run": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": false,
+            "required": [
+              "run_id",
+              "status",
+              "finished_at"
+            ],
+            "properties": {
+              "run_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "passed",
+                  "failed",
+                  "inconclusive"
+                ]
+              },
+              "finished_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "exempt_reason": {
+            "type": "string"
+          },
+          "review_due": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    }
+  }
+}

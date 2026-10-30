@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-10-30T10:00:00Z",
+  "cells": [
+    {
+      "axes": {"model_scale": "7B", "io_feature": "small-dense"},
+      "status": "gap",
+      "cases": []
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "model_id": "example/tiny-64",
+  "org": "example",
+  "commit": "0123456789abcdef0123456789abcdef01234567",
+  "license": "apache-2.0",
+  "code_role": "inference",
+  "code_role_evidence": "仓库只含 modeling_tiny.py 与 config.json，无训练入口",
+  "files": [
+    {
+      "path": "config.json",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "path": "modeling_tiny.py",
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    }
+  ],
+  "fingerprint": {
+    "arch_family": "tiny-decoder",
+    "config": {
+      "num_hidden_layers": 2,
+      "hidden_size": 64,
+      "num_attention_heads": 4,
+      "num_key_value_heads": 2,
+      "intermediate_size": 128,
+      "vocab_size": 256
+    },
+    "code_features": ["attention", "mlp", "layernorm", "residual"]
+  },
+  "dedup": {
+    "group": "tiny-decoder",
+    "decision": "kept"
+  },
+  "runnable": "yes",
+  "runnable_detail": "meta device 前向通过，rank 数 2，分时占用 1 张卡",
+  "paired_training": {
+    "status": "unpaired"
+  }
+}

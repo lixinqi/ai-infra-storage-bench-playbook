@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/model-manifest.schema.json",
+  "title": "ModelManifest",
+  "description": "模型代码收集清单。一个版本一份，存对象存储；仓库只放 schema 与最小样例。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "generated_at", "entries"],
+  "properties": {
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["model_id", "org", "commit", "license", "code_role", "files", "fingerprint", "dedup", "runnable"],
+        "properties": {
+          "model_id": { "type": "string", "minLength": 1 },
+          "org": { "type": "string", "minLength": 1 },
+          "commit": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+          "license": { "type": ["string", "null"] },
+          "code_role": {
+            "type": "string",
+            "enum": ["inference", "pretrain", "both", "unknown"]
+          },
+          "code_role_evidence": { "type": "string", "minLength": 1 },
+          "files": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["path", "sha256"],
+              "properties": {
+                "path": { "type": "string", "minLength": 1 },
+                "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+              }
+            }
+          },
+          "fingerprint": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["arch_family", "config", "code_features"],
+            "properties": {
+              "arch_family": { "type": "string", "minLength": 1 },
+              "config": { "type": "object", "additionalProperties": true },
+              "code_features": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          },
+          "dedup": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["group", "decision"],
+            "properties": {
+              "group": { "type": "string", "minLength": 1 },
+              "decision": { "type": "string", "enum": ["kept", "dropped"] },
+              "dropped_by": { "type": "string" }
+            }
+          },
+          "runnable": { "type": "string", "enum": ["yes", "no", "partial"] },
+          "runnable_detail": { "type": "string" },
+          "paired_training": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status"],
+            "properties": {
+              "status": { "type": "string", "enum": ["paired", "external", "unpaired"] },
+              "ref": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

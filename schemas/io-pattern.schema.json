@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/io-pattern.schema.json",
+  "title": "IOPatternRecord",
+  "description": "一次运行产出的 IO pattern 记录。由评估服务生成，存对象存储，用于对齐与 scaling 计算。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "recipe",
+    "window",
+    "sources",
+    "totals",
+    "request_size_histogram"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recipe": {
+      "type": "string",
+      "minLength": 1
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end"
+      ],
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "sources": {
+      "description": "采集层。至少两层，且必须包含 sys，否则该记录不能用于对齐判定。",
+      "type": "array",
+      "minItems": 2,
+      "contains": {
+        "const": "sys"
+      },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$"
+      },
+      "uniqueItems": true
+    },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "read_bytes",
+        "write_bytes",
+        "read_ops",
+        "write_ops"
+      ],
+      "properties": {
+        "read_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "write_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "read_ops": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "write_ops": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "request_size_histogram": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bucket_edges",
+        "counts"
+      ],
+      "properties": {
+        "bucket_edges": {
+          "description": "按 4 KiB 起对数分桶的右边界，长度必须比 counts 多 1。",
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "counts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "concurrency": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "p50": {
+          "type": "number",
+          "minimum": 0
+        },
+        "p95": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "sequentiality_ratio": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "hotness": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "top_k": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "top_k_share": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "gini": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "cross_node": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "egress_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ingress_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "observation_overhead_ratio": {
+      "description": "开启观测与关闭观测相比，关键指标的变化比例。超过 0.03 时该记录不能用于时序结论。",
+      "type": "number",
+      "minimum": 0
+    },
+    "notes": {
+      "type": "string"
+    },
+    "tokens_generated": {
+      "description": "本次运行生成的 token 数。只有在评估 kvcache 时填写，用于核对每 token KV 写入字节。",
+      "type": "integer",
+      "minimum": 0
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "peak_bytes_per_second"
+      ],
+      "properties": {
+        "peak_bytes_per_second": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

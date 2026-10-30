@@ -1,0 +1,114 @@
+name: checkpoint-dataset
+version: 0.1.0
+status: draft
+owner: storage-eval
+type: checkpoint-dataset
+
+depends_on:
+  - recipes/model-code-collection
+
+bypass:
+  what:
+    - forward
+    - backward
+    - optimizer.step
+  method: meta-device
+  kept:
+    - checkpoint 写入与元数据提交
+    - checkpoint 读取与恢复
+    - dataset 读取与解码
+    - 并行切分
+
+fidelity_boundary:
+  - path: "model.forward"
+    bypassed: "yes"
+    method: meta-device
+    fidelity: "na"
+    kept: 模块调用顺序、张量逻辑尺寸、输出结构
+    known_bias: 计算耗时为 0，checkpoint 写入时序可能被压缩
+  - path: "model.backward"
+    bypassed: "yes"
+    method: meta-device 占位梯度
+    fidelity: "na"
+    kept: 梯度键结构、梯度逻辑尺寸
+    known_bias: 无真实梯度计算，梯度检查点（activation checkpointing）路径的热点消失
+  - path: "optimizer.step"
+    bypassed: "yes"
+    method: 占位更新
+    fidelity: L1
+    kept: state_dict 的键结构与分片
+    known_bias: 优化器状态不真实变化，重复 step 的数值行为与真实不同
+  - path: "torch.distributed.checkpoint.save"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实分片写入、真实元数据提交、真实存储调用
+    known_bias: none
+  - path: "torch.distributed.checkpoint.load"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实读取与真实校验
+    known_bias: none
+  - path: "torch.utils.data.DataLoader 及其采样器"
+    bypassed: "no"
+    method: none
+    fidelity: L2
+    kept: 真实读取、真实 shuffle、真实预取
+    known_bias: 数据集变小后缓存命中率偏高
+  - path: "torch.distributed.all_gather / reduce_scatter"
+    bypassed: partial
+    method: mock process group
+    fidelity: L1
+    kept: 调用次数、参与通信的字节数
+    known_bias: rank 间真实同步丢失，通信与存储的时间重叠关系失真
+
+io_pattern_invariants:
+  - name: 每 rank 写入请求大小分布
+    definition: 单次 checkpoint 内，该 rank 所有写请求按 4 KiB 起对数分桶的归一化直方图
+    tolerance: L1 距离 <= 0.10
+  - name: 每参数字节数
+    definition: 一次 checkpoint 的写入总字节数 / 模型参数量
+    tolerance: 相对误差 <= 2%
+  - name: 单 rank 写入并发度
+    definition: 单 rank 同时在途的写请求数
+    tolerance: 中位数相对误差 <= 15%
+
+scaling_plan:
+  fixed_dimensions:
+    - 并行策略
+    - 负载（序列长度、batch）
+    - 存储后端
+  varied_dimension: 参数量与集群规模（分两阶段，不同时放大）
+  levels:
+    - id: S0
+      scale: 单机 8 卡，最小参数量
+      purpose: 与真实运行对齐，验证旁路成立
+    - id: S1
+      scale: 双机 16 卡
+      purpose: 引入多 rank 并发与网络共享存储
+    - id: S2
+      scale: 64–128 卡
+      purpose: 引入共享存储争用与元数据放大
+    - id: S3
+      scale: 1024 卡
+      purpose: 引入调度抖动与故障恢复
+    - id: S4
+      scale: 万卡
+      purpose: 实测上限，登记实测结论
+    - id: S5
+      scale: 十万卡
+      purpose: 外推目标，登记外推结论
+
+metrics_ref: ./metrics.yaml
+compatible_metrics:
+  io-pattern-alignment: ["1.0.0"]
+  scaling-consistency: ["1.0.0"]
+
+acceptance:
+  checklist: ./acceptance-checklist.md
+  gates: [G0, G1, G2, G3, G4]
+
+latest_run: null
+
+notes: checkpoint 实现与版本必须记录在运行清单里；不同实现不共用同一份结论。
