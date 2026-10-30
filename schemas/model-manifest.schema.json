@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/model-manifest.schema.json",
+  "$id": "https://example.com/ai-infra-storage-bench-playbook/schemas/model-manifest.schema.json",
   "title": "ModelManifest",
   "description": "模型代码收集清单。一个版本一份，存对象存储；仓库只放 schema 与最小样例。",
   "type": "object",

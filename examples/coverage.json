@@ -67,7 +67,7 @@
       },
       "status": "exempt",
       "cases": [],
-      "exempt_reason": "当前没有该变体的内部推理部署，暂不覆盖",
+      "exempt_reason": "当前没有该变体的推理部署，暂不覆盖",
       "review_due": "2027-01-01"
     },
     {

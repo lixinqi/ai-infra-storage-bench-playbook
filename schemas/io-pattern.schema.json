@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/io-pattern.schema.json",
+  "$id": "https://example.com/ai-infra-storage-bench-playbook/schemas/io-pattern.schema.json",
   "title": "IOPatternRecord",
   "description": "一次运行产出的 IO pattern 记录。由评估服务生成，存对象存储，用于对齐与 scaling 计算。",
   "type": "object",

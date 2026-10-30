@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/run-spec.schema.json",
+  "$id": "https://example.com/ai-infra-storage-bench-playbook/schemas/run-spec.schema.json",
   "title": "RunSpec",
   "description": "提交给评估服务的一次运行请求。字段定义见 playbook/evaluation-service.md 的「运行请求」。",
   "type": "object",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/recipe.schema.json",
+  "$id": "https://example.com/ai-infra-storage-bench-playbook/schemas/recipe.schema.json",
   "title": "Recipe",
   "description": "一个评估集配方的元信息。对应 recipes/<name>/recipe.yaml。",
   "type": "object",

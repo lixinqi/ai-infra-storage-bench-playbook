@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/metrics.schema.json",
+  "$id": "https://example.com/ai-infra-storage-bench-playbook/schemas/metrics.schema.json",
   "title": "RecipeMetrics",
   "description": "某个配方选用的指标、参数与阈值。对应 recipes/<name>/metrics.yaml。阈值只在这里声明，check 脚本通过 --metrics 读取同一份文件。",
   "type": "object",

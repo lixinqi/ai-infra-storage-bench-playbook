@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.internal/ai-infra-storage-bench-playbook/schemas/coverage.schema.json",
+  "$id": "https://example.com/ai-infra-storage-bench-playbook/schemas/coverage.schema.json",
   "title": "CoverageManifest",
   "description": "评估集覆盖度清单。由评估服务在每次运行后更新，存对象存储；仓库只放 schema 与计算脚本。",
   "type": "object",
