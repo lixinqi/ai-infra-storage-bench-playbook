@@ -14,6 +14,8 @@
 
 ## 怎么用
 
+测量方法与判定标准见 [`method.md`](method.md)：盲复现、结论追踪、覆盖度时间序列、成本核算、对照实验。
+
 1. 每季度按 [`survey-template.md`](survey-template.md) 收集一次配方使用者的反馈。
 2. 每季度统计一次 [`playbook-metrics.yaml`](playbook-metrics.yaml) 里的指标。
 3. 指标连续两个季度恶化时，在 `decisions/` 写一条记录，说明是手册的问题还是资源的问题。

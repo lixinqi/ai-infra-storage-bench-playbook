@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- 新增 [`playbook/storage-performance.md`](playbook/storage-performance.md)：一个样本上存储表现的测法与判法（吞吐、延迟、饱和度、公平性、错误、效率）。
+- 新增 [`meta-evaluation/method.md`](meta-evaluation/method.md)：评估 playbook 自身的五个问题、测量方法与判定标准。
 - 澄清静态产物与生成程序：评估集是带版本的静态用例清单，扩展由 playbook 完成；`playbook/self-evolution.md` 改名 `extension.md`。
 - scaling 上限从万卡改为十万卡：阶梯扩为 S0–S5，S4 = 万卡（实测上限），S5 = 十万卡（外推目标）；配方、指标参数、检查清单与相关文档同步。
 - 阈值单一来源：`check_io_pattern`、`check_coverage`、`check_scaling_consistency` 改从 `recipes/*/metrics.yaml` 读取，删除代码里的默认值；百分号与小数两种写法统一解析，未知键报错。

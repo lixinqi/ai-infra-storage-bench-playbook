@@ -8,6 +8,10 @@
 
 因此：**任何进入 `recipes/*/metrics.yaml` 的指标，必须先在 `metrics/` 里有定义，并在 `metrics/registry.yaml` 登记。**
 
+## 本目录的范围
+
+本目录的指标衡量**评估集自身是否可信**（对齐、覆盖、scaling 一致性）。被测对象（存储）在一个样本上的表现——吞吐、延迟、饱和度、公平性——不在本目录，见 [`playbook/storage-performance.md`](../playbook/storage-performance.md)。
+
 ## 指标清单
 
 | 指标 | 文档 | 版本 | 用途 |

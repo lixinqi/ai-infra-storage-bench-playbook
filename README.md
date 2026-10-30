@@ -104,6 +104,7 @@ runs/<run-id>/
 │   ├── evaluation-service.md      评估服务
 │   ├── extension.md               扩展：从缺口到新版本
 │   ├── pitfalls.md                已知坑与开放问题
+│   ├── storage-performance.md    存储表现：一个样本怎么判（吞吐、延迟、饱和度、公平性）
 │   └── appendix-glossary.md       基础术语：并行策略、模型结构、存储与 IO
 ├── recipes/                  三类评估集的可执行配方，一个评估集一个目录
 │   ├── _template/            新配方的脚手架
@@ -114,7 +115,7 @@ runs/<run-id>/
 ├── checks/                   校验脚本：指标与仓库规范的可执行实现
 ├── schemas/                  recipe / metrics / io-pattern / run-spec 的 JSON Schema
 ├── scripts/                  维护脚本：新建配方、批量校验
-├── meta-evaluation/          评估这套手册自身好不好用
+├── meta-evaluation/          评估这套 playbook 自身：指标、方法、问卷
 ├── decisions/                关键取舍的决策记录（ADR）
 ├── examples/                 最小可跑样例与负例
 ├── requirements.txt          校验脚本的依赖
@@ -138,7 +139,8 @@ python3 scripts/run_checks.py        # 上面这项 + selftest + examples/ 样�
 |---|---|
 | 判断这套 bench 能不能用 | [`playbook/principles.md`](playbook/principles.md)、[`metrics/coverage.md`](metrics/coverage.md) |
 | 搭某个评估集 | [`playbook/methodology.md`](playbook/methodology.md) → 对应的 `recipes/<name>/README.md` |
-| 验收别人的结论 | [`metrics/`](metrics/README.md) 三篇 + [`checks/README.md`](checks/README.md) |
+| 验收别人的结论 | [`playbook/storage-performance.md`](playbook/storage-performance.md) + [`metrics/`](metrics/README.md) 三篇 + [`checks/README.md`](checks/README.md) |
+| 评估这套 playbook 自身 | [`meta-evaluation/method.md`](meta-evaluation/method.md) |
 | 把评估跑成服务 | [`playbook/evaluation-service.md`](playbook/evaluation-service.md) |
 | 扩展评估集 | [`playbook/extension.md`](playbook/extension.md) |
 | 查不认识的领域词 | [`playbook/appendix-glossary.md`](playbook/appendix-glossary.md) |
