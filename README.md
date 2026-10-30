@@ -26,7 +26,7 @@
 
 - 评估对象：checkpoint 写入、checkpoint 读取、dataset 读取三条真实路径。
 - 做法：meta device 旁路 forward / backward / optimizer；checkpoint 与 DataLoader 保持真实。每个 rank 的分片、字节数、并发、时序照实记录。
-- 产出：一次运行的 IO pattern 记录（请求大小直方图、读写比、并发度、时序），与真实运行的对齐结果，以及逐级 scaling 结果。
+- 产出：一次运行的 IO pattern 记录（请求大小直方图、读写比、并发度、时序），SLO 表现（`checkpoint_duration_s`、`training_stall_s`、`restore_duration_s`），与真实运行的对齐结果，以及逐级 scaling 结果。
 - 规模阶梯：S0 单机 8 卡 → S1 双机 → S2 64–128 卡 → S3 千卡 → S4 万卡 → S5 十万卡。
 - 验收：对齐分项在阈值内；每参数字节数误差 ≤ 2%；每一级的不变量保持。
 
@@ -36,7 +36,7 @@
 - 做法：meta device 旁路 prefill / decode 计算；占位 attention 仍按真实块表与偏移读写 KV。调度器、块管理器、缓存与传输层不改。
 - 覆盖：三种推理框架（vllm / sglang / deepinfer）× 多种模型结构、KV 头数与规模。
 - 验收：每 token KV 写入字节误差 ≤ 1%；前缀命中率一致；prefill 与 decode 分别对齐；逐级 scaling 通过。
-- 产出与 checkpoint 评估相同：IO pattern、对齐结果、scaling 结果。
+- 产出与 checkpoint 评估相同：IO pattern、SLO 表现（`ttft_p99`、`tpot_p99`、请求成功率）、对齐结果、scaling 结果。
 
 以上数字是配方的验收目标与初始阈值，改动以 `recipes/<name>/recipe.yaml` 与 `metrics.yaml` 为准；README 只是摘要。
 
@@ -104,7 +104,7 @@ runs/<run-id>/
 │   ├── evaluation-service.md      评估服务
 │   ├── extension.md               扩展：从缺口到新版本
 │   ├── pitfalls.md                已知坑与开放问题
-│   ├── storage-performance.md    存储表现：一个样本怎么判（吞吐、延迟、饱和度、公平性）
+│   ├── storage-performance.md    存储表现：checkpoint / dataset / kvcache 各自的 SLO 与判定
 │   └── appendix-glossary.md       基础术语：并行策略、模型结构、存储与 IO
 ├── recipes/                  三类评估集的可执行配方，一个评估集一个目录
 │   ├── _template/            新配方的脚手架

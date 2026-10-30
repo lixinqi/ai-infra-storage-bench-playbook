@@ -4,7 +4,7 @@
 
 ## Unreleased
 
-- 新增 [`playbook/storage-performance.md`](playbook/storage-performance.md)：一个样本上存储表现的测法与判法（吞吐、延迟、饱和度、公平性、错误、效率）。
+- 新增 [`playbook/storage-performance.md`](playbook/storage-performance.md)：按评估集分别定义 SLO——checkpoint 看写入时长与训练停顿，dataset 看数据停顿比例与 batch 尾延迟，kvcache 看 TTFT 与 TPOT；底层存储指标只用于归因。
 - 新增 [`meta-evaluation/method.md`](meta-evaluation/method.md)：评估 playbook 自身的五个问题、测量方法与判定标准。
 - 澄清静态产物与生成程序：评估集是带版本的静态用例清单，扩展由 playbook 完成；`playbook/self-evolution.md` 改名 `extension.md`。
 - scaling 上限从万卡改为十万卡：阶梯扩为 S0–S5，S4 = 万卡（实测上限），S5 = 十万卡（外推目标）；配方、指标参数、检查清单与相关文档同步。

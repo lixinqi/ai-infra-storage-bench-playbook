@@ -106,6 +106,8 @@
 | 多框架覆盖 | 三个框架全部通过 |
 | scaling 一致性 | 每级相邻偏差在容差内，无单调恶化 |
 
+SLO 指标与判定顺序见 [`playbook/storage-performance.md`](../../playbook/storage-performance.md) 的 3.3 节，prefill 与 decode 分开判。
+
 ## 负责人
 
 见 [`recipe.yaml`](recipe.yaml) 的 `owner`。

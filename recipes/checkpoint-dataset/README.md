@@ -103,6 +103,8 @@
 | 覆盖 | 并行策略、集群规模、参数量三个轴上的已覆盖格子数达标 |
 | 可复现 | 配置、commit、拓扑、预热、观测全部登记 |
 
+SLO 指标与判定顺序见 [`playbook/storage-performance.md`](../../playbook/storage-performance.md) 的 3.1 节。
+
 ## 负责人
 
 见 [`recipe.yaml`](recipe.yaml) 的 `owner`。
